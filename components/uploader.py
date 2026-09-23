@@ -23,7 +23,7 @@ def render_upload_area() -> None:
         type=sorted(config.ALLOWED_IMAGE_EXTENSIONS),
         accept_multiple_files=False,
         on_change=events.on_upload_change,
-        help="JPG, PNG, WEBP, GIF or BMP — up to 15 MB",
+        help="JPG · PNG · WEBP · GIF · BMP — up to 15 MB",
     )
 
 
@@ -69,9 +69,9 @@ def render_image_panel() -> None:
         unsafe_allow_html=True,
     )
     st.button(
-        "Remove",
+        "Remove image",
         key="remove_btn",
-        type="tertiary",
+        type="secondary",
         on_click=events.on_remove_image,
     )
     st.markdown(

@@ -302,10 +302,16 @@ button:disabled {
 }
 
 .action-row .grow-small {
-  flex: 0 0 150px;
+  flex: 0 1 190px;
 }
 
 /* ---- Result card --------------------------------------------------------- */
+
+.result-hero {
+  border-top: 2px solid var(--accent);
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
 
 .result-kicker {
   font-size: 11px;
@@ -319,13 +325,13 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 22px;
+  padding: 13px 24px;
   border-radius: 999px;
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .verdict-badge .dot {
@@ -361,7 +367,7 @@ button:disabled {
 }
 
 .confidence-value {
-  font-size: 52px;
+  font-size: 58px;
   font-weight: 800;
   letter-spacing: -1.5px;
   line-height: 1;
@@ -422,6 +428,49 @@ button:disabled {
   border-radius: 10px;
   border: 1px solid var(--border);
   width: 100%;
+}
+
+/* ---- Analysis details panel ------------------------------------------------ */
+
+.details-card {
+  margin-top: 16px;
+}
+
+.details-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 18px;
+  margin-top: 14px;
+}
+
+.details-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.details-row:last-child {
+  border-bottom: none;
+}
+
+.d-k {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.d-v {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  word-break: break-word;
 }
 
 /* ---- Ready / awaiting panel ---------------------------------------------- */
@@ -545,34 +594,40 @@ button:disabled {
 }
 
 .scan-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--text);
   margin-top: 22px;
 }
 
 .scan-sub {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--muted);
   margin-top: 6px;
+}
+
+.scan-hint {
+  font-size: 12px;
+  color: var(--faint);
+  margin-top: 10px;
 }
 
 /* ---- Empty / hero ---------------------------------------------------------- */
 
 .hero {
-  max-width: 660px;
-  margin: 4vh auto 0;
+  max-width: 640px;
+  margin: 1.2vh auto 0;
   text-align: center;
 }
 
 .hero-mark {
-  width: 74px;
-  height: 74px;
-  border-radius: 18px;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border-strong);
   box-shadow: var(--shadow);
-  margin: 0 auto 22px;
+  margin: 0 auto 16px;
 }
 
 .hero-mark img {
@@ -583,9 +638,9 @@ button:disabled {
 }
 
 .hero-title {
-  font-size: 34px;
+  font-size: 29px;
   font-weight: 800;
-  letter-spacing: -0.6px;
+  letter-spacing: -0.5px;
   line-height: 1.15;
   color: var(--text);
 }
@@ -595,29 +650,29 @@ button:disabled {
 }
 
 .hero-sub {
-  font-size: 15.5px;
+  font-size: 14.5px;
   color: var(--muted);
-  line-height: 1.75;
-  margin-top: 14px;
+  line-height: 1.6;
+  margin-top: 12px;
 }
 
 .feature-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
-  margin-top: 26px;
+  margin-top: 16px;
 }
 
 .feature-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
+  gap: 7px;
+  padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text);
 }
@@ -630,16 +685,72 @@ button:disabled {
 }
 
 .drop-margin {
-  margin: 30px auto 0;
+  margin: 20px auto 0;
   max-width: 520px;
 }
 
 .hero-note {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--faint);
-  max-width: 460px;
-  margin: 18px auto 0;
+  max-width: 480px;
+  margin: 16px auto 0;
   line-height: 1.6;
+  text-align: center;
+}
+
+/* ---- How it works ----------------------------------------------------------- */
+
+.how-wrap {
+  max-width: 640px;
+  margin: 24px auto 0;
+  text-align: center;
+}
+
+.how-kicker {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 700;
+}
+
+.steps {
+  display: flex;
+  gap: 12px;
+  margin-top: 13px;
+  text-align: left;
+}
+
+.step {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 14px;
+}
+
+.step-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--amber);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.step-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.step-text {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 4px;
 }
 
 /* ---- Error card ------------------------------------------------------------ */
@@ -687,14 +798,31 @@ button:disabled {
 
 @media (max-width: 720px) {
   .hero-title {
-    font-size: 27px;
+    font-size: 24px;
   }
 
   .confidence-value {
-    font-size: 42px;
+    font-size: 44px;
   }
 
   .meta-grid {
     grid-template-columns: 1fr;
+  }
+
+  .details-list {
+    grid-template-columns: 1fr;
+  }
+
+  .steps {
+    flex-direction: column;
+  }
+
+  .action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-row .grow-small {
+    flex: 1;
   }
 }

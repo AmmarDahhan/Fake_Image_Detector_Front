@@ -1,7 +1,8 @@
-"""Dominant result card: verdict, confidence meter, interpretation, image.
+"""Dominant result card: verdict, confidence, interpretation, file details.
 
 Depends only on the ``AnalysisResult`` abstraction - never on which analyzer
-produced it - so a future backend result renders identically.
+produced it - so a future backend result renders identically. The uploaded
+image is shown once (in the left panel); the card carries no second image.
 """
 
 from __future__ import annotations
@@ -12,7 +13,7 @@ import streamlit as st
 
 from components import events
 from core import config, session
-from core.models import AnalysisResult, Verdict, format_confidence
+from core.models import AnalysisResult, format_confidence
 
 
 def render(result: AnalysisResult) -> None:
@@ -21,15 +22,12 @@ def render(result: AnalysisResult) -> None:
 
     st.markdown(
         f"""
-        <div class="card">
+        <div class="card result-hero">
           <div class="result-kicker">Analysis result</div>
-          <div>
-            <div class="verdict-badge {verdict_class}">
-              <span class="dot"></span>
-              {html.escape(result.verdict.label)}
-            </div>
+          <div class="verdict-badge {verdict_class}">
+            <span class="dot"></span>
+            {html.escape(result.verdict.label)}
           </div>
-
           <div class="confidence-block">
             <div class="confidence-value">{percentage}</div>
             <div class="confidence-scale">
@@ -38,7 +36,6 @@ def render(result: AnalysisResult) -> None:
             </div>
             <div class="confidence-caption">Confidence</div>
           </div>
-
           <div class="interpretation">
             {html.escape(config.interpret_result(result.verdict, result.confidence))}
           </div>
@@ -47,21 +44,37 @@ def render(result: AnalysisResult) -> None:
         unsafe_allow_html=True,
     )
 
-    file_bytes = session.get_state("file_bytes")
-    if file_bytes is not None:
-        st.markdown(
-            """
-            <div class="card" >
-              <span class="card-label">Analyzed sample</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.image(file_bytes, width="stretch")
+    st.markdown(_details_html(result), unsafe_allow_html=True)
+
+    st.markdown('<div style="margin-top: 14px"></div>', unsafe_allow_html=True)
 
     st.button(
         "Analyze another image",
         key="reset_btn",
         type="secondary",
         on_click=events.on_remove_image,
+    )
+
+
+def _details_html(result: AnalysisResult) -> str:
+    info = session.get_state("image_info")
+    rows = [
+        ("Verdict", result.verdict.label),
+        ("Confidence", format_confidence(result.confidence)),
+        ("File type", info.type_label if info else "—"),
+        ("Dimensions", info.dimensions_label if info else "—"),
+        ("File size", info.size_label if info else "—"),
+        ("Status", "Completed"),
+    ]
+    body = "".join(
+        f'<div class="details-row">'
+        f'<span class="d-k">{html.escape(k)}</span>'
+        f'<span class="d-v">{html.escape(v)}</span>'
+        f"</div>"
+        for k, v in rows
+    )
+    return (
+        '<div class="card details-card">'
+        '<div class="result-kicker">Analysis details</div>'
+        f'<div class="details-list">{body}</div></div>'
     )

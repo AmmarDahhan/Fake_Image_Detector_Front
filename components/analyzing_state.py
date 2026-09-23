@@ -1,4 +1,8 @@
-"""In-progress analysis state with custom scan animation."""
+"""In-progress analysis state with custom scan animation.
+
+Copy is deliberately neutral - it must not claim specific model operations
+(such as face detection or artifact extraction) that do not actually occur.
+"""
 
 from __future__ import annotations
 
@@ -12,8 +16,9 @@ def render() -> None:
           <div class="scan-wrap">
             <div class="scan-ring"></div>
             <div class="scan-line"></div>
-            <div class="scan-title">Running background analysis</div>
-            <div class="scan-sub">Examining the image for authenticity signals…</div>
+            <div class="scan-title">Analysis in progress</div>
+            <div class="scan-sub">Analyzing image…</div>
+            <div class="scan-hint">This typically takes a few seconds.</div>
           </div>
         </div>
         """,

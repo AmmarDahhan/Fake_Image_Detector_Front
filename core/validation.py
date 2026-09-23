@@ -48,8 +48,9 @@ def validate_image(
 
         raise ImageValidationError(
             "oversized",
-            f"This image is {format_bytes(len(data))}, which exceeds the "
-            f"{format_bytes(max_bytes)} upload limit.",
+            f"This image is {format_bytes(len(data))}, which is larger than the "
+            f"{format_bytes(max_bytes)} upload limit. Please choose a smaller "
+            "or compressed image.",
         )
 
     extension = Path(filename).suffix.lstrip(".").lower()

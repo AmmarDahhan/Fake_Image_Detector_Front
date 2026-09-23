@@ -17,11 +17,10 @@ LOGO_PATH = ASSETS_DIR / "logo.png"
 
 # --- Product identity -----------------------------------------------------
 APP_NAME = "Fake Image Detector"
-APP_TAGLINE = "AI-Powered Image Authenticity Analysis"
+APP_TAGLINE = "AI AUTHENTICITY LAB"
 APP_DESCRIPTION = (
-    "Upload an image and the analysis engine will assess whether it is an "
-    "authentic capture or was generated / manipulated by artificial "
-    "intelligence."
+    "Upload an image and the system will classify it as Real or Fake with a "
+    "confidence score."
 )
 
 # --- Upload constraints ---------------------------------------------------
@@ -53,16 +52,17 @@ COLOR_ACCENT_AMBER = "#F5B942"
 
 # --- Copy: result interpretation ----------------------------------------
 def interpret_result(verdict: Verdict, confidence: float) -> str:
+    """Neutral result wording.
+
+    The current analyzer only returns a verdict + confidence, so the copy
+    states exactly that - it must never imply forensic signals or specific
+    ML analyses that did not happen.
+    """
     pct = format_confidence(confidence)
-    if verdict is Verdict.REAL:
-        return (
-            f"No significant indicators of AI generation or manipulation were "
-            f"found. The image is assessed as authentic (Real) at {pct} "
-            f"confidence."
-        )
     return (
-        f"Strong indicators of AI generation or artificial manipulation were "
-        f"found. The image is assessed as Fake at {pct} confidence."
+        f"The image was classified as {verdict.label} with {pct} confidence. "
+        "Confidence indicates how strongly the analysis supports this "
+        "classification."
     )
 
 
@@ -76,13 +76,19 @@ VALIDATION_ERROR_TITLES = {
 
 # --- Copy: empty / welcome state ------------------------------------------
 EMPTY_FEATURES = (
-    "Authenticity verdict",
-    "Confidence scoring",
-    "Image-level forensics",
+    "Real / Fake verdict",
+    "Confidence score",
+    "Upload & analyze",
     "Instant results",
 )
 EMPTY_PRIVACY_NOTE = (
     "Images are used only for this analysis session. Nothing is stored or "
     "shared by this interface."
 )
-UPLOAD_HINT = "JPG, PNG, WEBP, GIF, BMP — up to 15 MB"
+UPLOAD_HINT = "JPG · PNG · WEBP · GIF · BMP — up to 15 MB"
+
+HOW_IT_WORKS_STEPS = (
+    ("Upload", "Add an image for analysis."),
+    ("Analyze", "The system evaluates the uploaded image."),
+    ("Verify", "Receive a Real/Fake classification and confidence score."),
+)

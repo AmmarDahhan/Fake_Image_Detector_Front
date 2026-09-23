@@ -64,7 +64,6 @@ def on_remove_image() -> None:
 
     st.session_state.pop(FILE_UPLOADER_KEY, None)
     session.reset_image()
-    st.rerun()
 
 
 def on_dismiss_error() -> None:
