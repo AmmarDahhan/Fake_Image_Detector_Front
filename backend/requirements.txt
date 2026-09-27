@@ -1,0 +1,38 @@
+# Fake Image Detector - backend
+#
+# Install:  pip install -r requirements.txt
+# Dev/test: pip install -r requirements-dev.txt
+
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+
+# Required by FastAPI to parse multipart/form-data uploads.
+python-multipart>=0.0.9
+
+# Server-side upload validation and model preprocessing: used to prove the
+# uploaded bytes are a real, decodable image (a renamed text file passes
+# extension/MIME checks), and to decode/resize before inference.
+Pillow>=10.0
+
+# Loads backend/.env for configuration.
+python-dotenv>=1.0
+
+# --- Model inference ---
+# The AI team supplied ai_model/requirements.txt as exactly:
+#     torch
+#     torchvision
+#     Pillow
+# with no version constraints, so none are invented here either; pip resolves
+# them. Pillow is already listed above.
+#
+# Verified working with: torch 2.14.0+cpu / torchvision 0.29.0+cpu on
+# Python 3.12, Windows, CPU-only. Those are the versions pip selected, not
+# versions the AI team specified - treat them as observed, not required.
+#
+# For a CPU-only install (avoids ~2.5 GB of CUDA wheels):
+#     pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# For a CUDA build, install from the PyPI index instead and select the wheel
+# matching the local CUDA runtime.
+torch
+torchvision

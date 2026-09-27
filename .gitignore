@@ -1,6 +1,21 @@
-.venv/
-venv/
+# Python
 __pycache__/
 *.pyc
+*.pyo
 .pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Secrets / local config
+.env
 .streamlit/secrets.toml
+
+# Reconstructed model checkpoint (~544 MiB). Derived from the AI team's
+# extracted archive by backend/tools/prepare_checkpoint.py - regenerate it
+# rather than committing it. The AI team's own ai_model/best_accuracy_model/
+# is likewise not committed; obtain it from the AI team.
+backend/artifacts/
+ai_model/best_accuracy_model/
+ai_model/*.code-workspace

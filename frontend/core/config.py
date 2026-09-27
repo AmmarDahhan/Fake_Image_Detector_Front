@@ -2,10 +2,17 @@
 
 Everything the UI needs to render sits here so it never leaks into the
 analysis services. Swap values here to rebrand or retune the product.
+
+Runtime infrastructure settings (the analysis backend URL and its timeout) also
+live here, so there is exactly one place to repoint the app at a different
+deployment. Each can be overridden by an environment variable for the same
+reason the backend reads ``.env``; the defaults match a local ``uvicorn`` on
+port 8000.
 """
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from core.models import Verdict, format_confidence
@@ -36,8 +43,19 @@ ALLOWED_MIME_TYPES = {
 
 # --- Analysis backend -----------------------------------------------------
 # "mock" = built-in demo analyzer (clearly NOT a real model).
-# "api"  = future real backend; switch to it once the API contract exists.
-ANALYZER_BACKEND = "mock"
+# "api"  = the real FastAPI backend (default now that it exists).
+ANALYZER_BACKEND = os.getenv("FID_ANALYZER_BACKEND", "api").strip().lower()
+
+# Base URL of the backend API. No trailing slash is required.
+# Repoint at another deployment with FID_API_BASE_URL; no code change needed.
+API_BASE_URL = os.getenv("FID_API_BASE_URL", "http://localhost:8000").strip().rstrip("/")
+
+# Path of the analysis endpoint, appended to API_BASE_URL by the analyzer.
+API_ANALYZE_PATH = "/analyze"
+
+# Seconds to wait for the backend before giving up. Generous because the first
+# request may also pay the model's one-time load cost.
+API_TIMEOUT_SECONDS = float(os.getenv("FID_API_TIMEOUT_SECONDS", "60"))
 
 # Demo-only simulated latency range (seconds). Ignored by the real backend.
 MOCK_ANALYSIS_DELAY_SECONDS = (1.1, 2.0)

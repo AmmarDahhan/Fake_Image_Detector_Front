@@ -1,0 +1,6 @@
+streamlit>=1.36
+Pillow>=10.0
+
+# HTTP client for the real backend call in services/api_analyzer.py
+# (multipart/form-data POST to POST /analyze).
+requests>=2.31
