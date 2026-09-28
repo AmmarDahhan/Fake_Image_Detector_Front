@@ -4,6 +4,26 @@ Upload an image and the system classifies it as **Real** or **Fake** with a
 confidence score. A Streamlit frontend calls a FastAPI backend, which runs the
 AI team's trained ConvNeXt model and returns a binary verdict.
 
+## Two Ways to Get This Project
+
+The project is handed over in two separate forms. **Which one you have decides
+how you set it up.**
+
+| | A. Full local handoff (RAR) | B. GitHub repository |
+| --- | --- | --- |
+| What you receive | The complete project folder | Source code only |
+| Model checkpoint | **Already included** at `backend/artifacts/best_accuracy_model.pth` | **Not included** — excluded from Git on purpose |
+| `backend/tools/setup_model.py` | **Not needed** | Required (once a Release asset exists) |
+| Setup path | [Complete Setup](#complete-setup) below | [Model Setup (GitHub)](#model-setup-github-source-only) |
+
+The model is a ~544 MiB binary. It is deliberately not in Git, because a file
+that size in normal history would bloat every clone permanently. So the
+handover splits the delivery in two: the RAR carries source **and** model, while
+the GitHub repository carries source **and** distributes the model separately.
+
+**If you received the RAR, follow [Complete Setup](#complete-setup). You do not
+need `setup_model.py` — your model is already in place.**
+
 ## Project Structure
 
 - `frontend/` — Streamlit application. `app.py` is the entry point; `components/`
@@ -16,10 +36,12 @@ AI team's trained ConvNeXt model and returns a binary verdict.
 - `backend/` — FastAPI application. `app/api/routes.py` defines the endpoints,
   `app/core/` configuration and upload validation, `app/schemas/` the response
   contract, and `app/services/` the model loading and inference seam plus the
-  model-class-to-verdict mapping. `tools/setup_model.py` downloads the runtime
-  checkpoint from a release asset; `tools/prepare_checkpoint.py` reconstructs a
-  loadable `.pth` from the AI team's delivered archive (fallback path). `tests/`
-  contains the unit suite and the model integration suite.
+  model-class-to-verdict mapping. `artifacts/` holds the runtime checkpoint
+  (present in the RAR handoff, absent from Git). `tools/setup_model.py`
+  downloads the runtime checkpoint from a release asset (GitHub path only);
+  `tools/prepare_checkpoint.py` reconstructs a loadable `.pth` from the AI
+  team's delivered archive (fallback path only). `tests/` contains the unit
+  suite and the model integration suite.
 - `ai_model/` — Supplied by the AI team. `predict.py` is their reference
   inference script, `best_accuracy_model/` is the delivered checkpoint archive,
   and `images/` holds sample images used for verification.
@@ -55,14 +77,109 @@ Python is required. The project was developed against Python 3.12.
 - Frontend dependencies: `frontend/requirements.txt`
 - The AI team's inference dependencies: `ai_model/requirements.txt`
 
-The backend and frontend use separate environments in the current setup. The
-commands below assume the backend virtual environment at `backend/.venv`.
+`backend/requirements.txt` pulls in `torch` and `torchvision`. On a machine with
+an NVIDIA GPU, pip will select the large CUDA wheels. To install CPU-only
+builds instead (roughly 2.5 GB smaller), run:
 
-## Model Setup
+```
+.venv\Scripts\python.exe -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+```
 
-The model is **not** committed to this repository. It is a ~544 MiB binary, and
-putting it in normal Git history would bloat every clone permanently. Two
-artifacts are therefore deliberately absent from the source repository:
+The backend and the frontend use separate environments. All commands below are
+relative to the project root and assume the backend virtual environment at
+`backend/.venv`.
+
+---
+
+## Complete Setup
+
+**This is the path for the full local handoff (the RAR).** The model is already
+in the package, so there is no download or conversion step. From the extracted
+folder to a running system:
+
+1. **Extract the RAR.** Unpack the archive wherever you want the project to
+   live. You do not need any special extraction tool or admin rights — the
+   standard Windows `.rar` extractor is enough.
+
+2. **Open the extracted `Fake_Image_Detector` folder.** This is the project
+   root; every command below is run from it.
+
+   ```
+   cd Fake_Image_Detector
+   ```
+
+3. **Create the backend virtual environment.** Python 3.12 is what the project
+   was developed against.
+
+   ```
+   cd backend
+   py -3.12 -m venv .venv
+   ```
+
+   If the extracted copy already contains a `backend/.venv` and you are happy to
+   reuse it, skip this step. Otherwise the above creates a clean one.
+
+4. **Install the backend dependencies.**
+
+   ```
+   .venv\Scripts\python.exe -m pip install -r requirements.txt
+   ```
+
+   This is the step that takes longest — it downloads PyTorch, which is
+   hundreds of megabytes. Note the CPU-only alternative in
+   [Requirements](#requirements) if the CUDA download is unnecessary for your
+   machine.
+
+5. **Optionally install the backend development/test dependencies.**
+
+   ```
+   .venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+   ```
+
+   Only needed if you intend to run the test suite. This file already includes
+   `requirements.txt`, so it alone is sufficient — step 4 becomes redundant if
+   you run this one.
+
+6. **Install the frontend dependencies.**
+
+   ```
+   cd ..\frontend
+   python -m pip install -r requirements.txt
+   ```
+
+   This installs Streamlit, `requests` and Pillow. The frontend runs in its own
+   environment, so use a Python interpreter that is separate from
+   `backend/.venv` — for example your system Python, or a `frontend/.venv` you
+   created the same way as in step 3.
+
+7. **Start the backend.** See [Running the Backend](#running-the-backend).
+
+8. **Start the frontend.** See [Running the Frontend](#running-the-frontend).
+
+Then open <http://localhost:8501> and upload an image.
+
+### The model is already in the RAR
+
+The archive ships with the runtime checkpoint in place:
+
+```
+backend/artifacts/best_accuracy_model.pth
+```
+
+That is the exact path the backend loads by default. **There is nothing to
+download, nothing to configure, and `setup_model.py` is not part of the RAR
+setup path.** If the backend starts and answers `POST /analyze`, the checkpoint
+was found.
+
+`setup_model.py` and `prepare_checkpoint.py` are still documented below for the
+GitHub path and for recovery, but you can ignore both for a normal RAR install.
+
+---
+
+## Model Setup (GitHub, source only)
+
+This section applies **only** if you cloned the GitHub repository instead of
+using the RAR. Two artefacts are deliberately absent from the source repository:
 
 - `backend/artifacts/best_accuracy_model.pth` — the runtime checkpoint the
   backend loads. Intentionally not committed.
@@ -74,12 +191,10 @@ are themselves the artefact; there is no training pipeline, dataset or seed in
 this repository. The two things versioned and distributed here are separate:
 
 - **Source code** — versioned in Git, cloned normally.
-- **Model artefact** — distributed as a GitHub **Release asset**, fetched by
+- **Model artefact** — distributed separately, fetched by
   `backend/tools/setup_model.py`.
 
-### Normal path: download the released checkpoint
-
-This is the documented setup path for a new developer.
+### Standard path: download the released checkpoint
 
 1. **Clone the repository.**
 
@@ -91,12 +206,13 @@ This is the documented setup path for a new developer.
 2. **Obtain the released runtime model.** The intended distribution mechanism is
    a GitHub Release asset named `best_accuracy_model.pth`, together with its
    SHA-256 digest. The exact asset URL and digest are **not yet configured** —
-   the Release has not been created. Once it exists, record both in this
-   section and in the release notes.
+   the Release has not been created. Once it exists, record both here and in the
+   release notes.
 
 3. **Run the setup script**, which downloads and verifies the asset into
    `backend/artifacts/best_accuracy_model.pth`, the path the backend already
-   loads by default:
+   loads by default. Create the backend virtual environment first (steps 3–4 of
+   [Complete Setup](#complete-setup)), then:
 
    ```
    cd backend
@@ -124,8 +240,9 @@ This is the documented setup path for a new developer.
 
 ### Fallback: use the AI team's extracted archive
 
-Use this if the Release asset is unavailable but you have been given the
-original archive by the AI team.
+Recovery path only. Use this if the Release asset is unavailable but you have
+been given the original archive by the AI team. It is **not** part of the normal
+RAR startup path.
 
 1. Obtain the original model artefact from the AI team and place it at
    `ai_model/best_accuracy_model/`.
@@ -146,29 +263,18 @@ AI team's folder is only ever read, never modified.
 The two paths are independent. `setup_model.py` only fetches an already-built
 `.pth` and never calls `prepare_checkpoint.py`.
 
-## Complete Setup
-
-From a fresh clone to a running system:
-
-1. Clone the repository.
-2. Install the backend dependencies (`pip install -r requirements-dev.txt` from
-   `backend/`) and the frontend dependencies (`pip install -r requirements.txt`
-   from `frontend/`).
-3. Obtain the released runtime model and run
-   `backend/tools/setup_model.py` as described above.
-4. Start the backend.
-5. Start the frontend.
-
-Steps 4 and 5 are the commands in the next two sections.
+---
 
 ## Running the Backend
 
+Open a terminal in the project root:
+
 ```
-cd F:\Fake_Image_Detector\backend
+cd backend
 .venv\Scripts\python.exe -m uvicorn app.main:app --port 8000
 ```
 
-Endpoints:
+Leave it running. Endpoints:
 
 - `GET /health` — liveness probe. Reports that the API process is serving. It
   deliberately does not report model readiness, since loading the checkpoint to
@@ -181,10 +287,16 @@ Endpoints:
 
 Interactive API documentation is served at `/docs` while the backend is running.
 
+If the first request returns `503`, the backend could not load
+`backend/artifacts/best_accuracy_model.pth`. Check that the file is present, or
+see [Model Setup (GitHub)](#model-setup-github-source-only).
+
 ## Running the Frontend
 
+In a **second** terminal, from the project root:
+
 ```
-cd F:\Fake_Image_Detector\frontend
+cd frontend
 python -m streamlit run app.py
 ```
 
@@ -216,17 +328,17 @@ The backend has its own optional configuration, read from `backend/.env`; see
 
 ## Testing
 
-Frontend:
+Frontend, from the project root:
 
 ```
-cd F:\Fake_Image_Detector\frontend
+cd frontend
 python -m unittest discover -s tests -t .
 ```
 
-Backend:
+Backend, from the project root:
 
 ```
-cd F:\Fake_Image_Detector\backend
+cd backend
 .venv\Scripts\python.exe -m pytest                    # fast suite, integration excluded
 .venv\Scripts\python.exe -m pytest -m integration     # loads the real checkpoint
 .venv\Scripts\python.exe -m pytest tests\test_setup_model.py   # model download script only
@@ -259,7 +371,7 @@ authentic in origin but altered. This is a product decision rather than a model
 fact, and it is pending confirmation from the AI team. A checkpoint reporting a
 class name outside this set causes a hard error rather than a guessed verdict.
 
-## Important Notes
+## Important Notes / Limitations
 
 - The first real inference may take around **15–20 seconds**, because the
   model is loaded lazily on first use. The load happens once per process;
@@ -269,4 +381,9 @@ class name outside this set causes a hard error rather than a guessed verdict.
   labelled evaluation dataset in this repository, so no accuracy or precision
   figure is claimed here. The mapping in
   `backend/app/services/model_class_map.py` is also unconfirmed by the AI team.
+  The GitHub Release asset and its SHA-256 digest are not yet configured, so the
+  source-only path is not yet fully reproducible from a public URL.
 - The API returns `confidence` in the range `0.0`–`1.0`.
+- There is no database, authentication, analysis history or image storage.
+- The model artefact is not in Git and cannot be rebuilt from source; the RAR
+  handoff is currently the only complete, ready-to-run copy.
